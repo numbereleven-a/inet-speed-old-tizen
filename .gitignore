@@ -1,0 +1,9 @@
+AGENTS.md
+artifacts/
+node_modules/
+.buildResult/
+app/.buildResult/
+*.wgt
+*.log
+.idea/
+.vscode/

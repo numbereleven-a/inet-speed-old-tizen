@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=1920">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' http: https:; connect-src https://speed.cloudflare.com https://speed.edgecompute.app https://spd-rudp.hostkey.ru; object-src 'none'">
+    <title>inet-speed-old-tizen</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="screen">
+    <aside class="sidebar">
+        <div class="brand"><img src="icon.png" alt=""><div><strong>inet-speed-<br>old-tizen</strong><span data-i18n="brandSubtitle">TV internet diagnostics</span></div></div>
+        <div class="nav-title" data-i18n="navTitle">CHECK</div>
+        <button class="nav active" data-page="overview"><span class="nav-symbol">◉</span> <span data-i18n="navOverview">Overview</span></button>
+        <button class="nav" data-page="sites"><span class="nav-symbol">◎</span> <span data-i18n="navSites">Sites</span></button>
+        <button class="nav" data-page="speed"><span class="nav-symbol">↗</span> <span data-i18n="navSpeed">Speed</span></button>
+        <div class="nav-divider"></div>
+        <button class="nav" data-page="settings"><span class="nav-symbol">≡</span> <span data-i18n="navSettings">Settings</span></button>
+        <button class="nav" data-page="help"><span class="nav-symbol">?</span> <span data-i18n="navHelp">Help</span></button>
+        <div class="sidebar-bottom"><span class="status-dot"></span><span id="network-state">Ready to test</span><div>Tizen 2.4+ <span>v1.0.0</span></div></div>
+    </aside>
+    <main>
+        <header><div><div class="eyebrow" id="page-eyebrow">YOUR CONNECTION</div><h1 id="page-title">Internet on the big screen</h1></div><div class="header-note" id="header-note"><div data-i18n="headerNote">Test from your TV</div><span data-i18n="headerStorage">No files saved</span></div></header>
+        <section id="page-overview" class="page">
+            <div class="hero panel">
+                <div class="hero-copy"><div class="eyebrow accent" data-i18n="heroEyebrow">ONE TEST — THE WHOLE PICTURE</div><h2 data-i18n="heroTitle">How is your<br>internet doing?</h2><p data-i18n="heroDescription">Download speed and popular sites’ response times.<br>Results appear as the test runs.</p><button class="primary" id="start-all"><span data-i18n="startAll">Run full test</span> <span>→</span></button><div class="small-note" id="overview-limits"></div></div>
+                <div class="hero-gauge"><canvas id="gauge" width="510" height="300"></canvas><div class="gauge-value" id="gauge-value">—</div><div class="gauge-unit" data-i18n="gaugeUnit">Mbps · download</div><div class="gauge-caption" id="gauge-caption">Waiting for a test</div></div>
+            </div>
+            <div class="summary-row">
+                <div class="panel metric"><div class="metric-label" data-i18n="speedLabel">DOWNLOAD SPEED</div><div class="metric-value" id="summary-speed">— <span>Mbps</span></div><div class="metric-note" id="summary-server">CDN test servers</div></div>
+                <div class="panel metric"><div class="metric-label" data-i18n="latencyLabel">SITE RESPONSE</div><div class="metric-value" id="summary-latency">— <span>ms</span></div><div class="metric-note" data-i18n="latencyNote">Median site response time</div></div>
+                <div class="panel metric"><div class="metric-label" data-i18n="repliesLabel">RESPONDED</div><div class="metric-value" id="summary-sites">— <span>/ 10</span></div><div class="metric-note" id="summary-status">No tests run yet</div></div>
+            </div>
+            <div class="section-heading"><h2 data-i18n="sitesTitle">Sites and services</h2><button class="text-button" id="open-sites" data-i18n="chooseSites">Choose sites →</button></div>
+            <div class="compact-grid" id="overview-sites"></div>
+            <div class="overview-foot" data-i18n="overviewFoot">HTTP response includes loading a small site icon. It differs from ping.</div>
+        </section>
+        <section id="page-sites" class="page hidden">
+            <div class="toolbar"><div class="filters" id="site-filters"><button data-group="all" class="chip selected" data-i18n="groupAll">All</button><button data-group="ru" class="chip" data-i18n="groupRussia">Russia</button><button data-group="world" class="chip" data-i18n="groupWorld">International</button><button id="custom-selection" class="chip" data-i18n="groupSelected">Selected</button></div><button class="text-button" id="open-manual" data-i18n="manualTitle">Manual site</button><button class="primary small" id="start-sites">Test group →</button></div>
+            <div class="site-list" id="site-list"></div>
+            <div class="panel explanation" id="site-detail" data-i18n="siteDetail">Press OK on a site to test it individually or add it to your group.</div>
+        </section>
+        <section id="page-manual" class="page hidden">
+            <div class="panel manual-panel">
+                <label for="manual-address" data-i18n="manualAddress">Site address</label>
+                <input id="manual-address" type="text" maxlength="512" placeholder="example.com" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <div id="manual-error" class="bad" role="alert"></div>
+                <div class="manual-actions"><button class="chip" id="manual-edit" data-i18n="manualEdit">Enter address</button><button class="primary" id="start-manual" data-i18n="manualTest">Test site →</button><button class="text-button" id="manual-back" data-i18n="manualBack">Back to sites</button></div>
+            </div>
+            <div class="panel explanation" data-i18n="manualHint">Enter a domain or a website URL. HTTPS is used by default. The test loads /favicon.ico from the host; a path in the entered URL is ignored. A missing icon does not mean the whole site is unavailable. The address is kept only for this session.</div>
+            <div class="panel manual-result hidden" id="manual-result"><div id="manual-host"></div><div class="site-ms" id="ms-manual">—</div><div class="site-state" id="state-manual"></div></div>
+        </section>
+        <section id="page-speed" class="page hidden">
+            <div class="toolbar"><p class="toolbar-description" data-i18n="speedDescription">Choose a server or compare all one after another.</p><button class="primary small" id="start-speed" data-i18n="startServers">Test all servers →</button></div>
+            <div class="server-row" id="server-list"></div>
+            <div class="panel chart-panel"><div class="section-heading"><h2 data-i18n="chartTitle">Speed during the test</h2><span id="chart-caption">Waiting for a test</span></div><canvas id="speed-chart" width="1360" height="245"></canvas><div class="chart-axis"><span data-i18n="chartStart">Start</span><span data-i18n="chartTime">Time →</span></div></div>
+            <div class="panel explanation" data-i18n="speedExplanation">The result reflects the selected CDN and your TV connection. It does not measure video speed on YouTube or Twitch. No files are saved to disk.</div>
+        </section>
+        <section id="page-settings" class="page hidden">
+            <p class="page-intro" data-i18n="settingsIntro">Preferences are saved on your TV. Tests start manually.</p>
+            <div class="panel settings-list">
+                <button class="setting" id="setting-language"><span><strong data-i18n="language">Language</strong><small data-i18n="languageHint">Switch between English and Russian</small></span><b id="value-language"></b></button>
+                <button class="setting" id="setting-timeout"><span><strong data-i18n="timeout">Response timeout</strong><small data-i18n="timeoutHint">Maximum for a single HTTP probe or a download stall</small></span><b id="value-timeout"></b></button>
+                <button class="setting" id="setting-samples"><span><strong data-i18n="samples">Probes per site</strong><small data-i18n="samplesHint">More probes give a better response-time estimate</small></span><b id="value-samples"></b></button>
+                <button class="setting" id="setting-duration"><span><strong data-i18n="duration">Speed test duration</strong><small data-i18n="durationHint">For each server separately</small></span><b id="value-duration"></b></button>
+                <button class="setting" id="setting-budget"><span><strong data-i18n="budget">Traffic limit per server</strong><small data-i18n="budgetHint">The test ends early when it reaches this limit</small></span><b id="value-budget"></b></button>
+            </div>
+            <div class="panel explanation" data-i18n="settingsExplanation">After an error, the server or site is skipped for 30 seconds. Two downloads run at once, with chunks up to 1 MiB each. On fast connections a small traffic limit shortens the test and reduces accuracy.</div>
+        </section>
+        <section id="page-help" class="page hidden">
+            <div class="panel help-panel"><h2 data-i18n="helpResults">What the results mean</h2><div class="help-row"><b data-i18n="unitMbps">Mbps</b><p data-i18n="helpSpeed">Received bytes divided by test duration, including gaps between requests. This is the download speed from one CDN, not a guarantee for every site.</p></div><div class="help-row"><b data-i18n="httpResponse">HTTP response</b><p data-i18n="helpResponse">Time to load a small icon from the displayed domain. The first probe may include DNS and HTTPS. We show the median; variation is the mean difference between adjacent probes. This is not ICMP ping or packet loss.</p></div><div class="help-row"><b data-i18n="noReply">No response</b><p data-i18n="helpNoReply">The probe timed out or the resource could not load. Possible causes include network issues, old TV certificates, site protection or a changed icon URL. This does not prove the whole site is blocked.</p></div><div class="help-row"><b data-i18n="memoryTraffic">Memory and traffic</b><p data-i18n="helpMemory">Data is needed only during each request. Downloaded files and result history are not saved. Only preferences and your selected group are saved. Total WebKit memory use is larger than the chunks.</p></div><div class="help-row"><b data-i18n="remote">Remote control</b><p data-i18n="helpRemote">Arrows move focus; OK selects. Return stops a running test or takes you to Overview. From Overview, Return opens the exit confirmation.</p></div></div>
+        </section>
+    </main>
+    <div class="run-bar hidden" id="run-bar"><div class="run-dot"></div><div class="run-description"><b id="run-title"></b><span id="run-subtitle"></span></div><div class="run-progress"><div id="run-progress-fill"></div></div><button id="stop-run"><span data-i18n="stop">Stop</span> <span>■</span></button></div>
+    <footer><span><b>↔ ↕</b> <span data-i18n="navigate">Navigate</span></span><span><b>OK</b> <span data-i18n="select">Select</span></span><span><b>Return</b> <span data-i18n="backStop">Back / stop</span></span><span id="footer-status">Ready to start</span></footer>
+    <div class="modal-cover hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-box"><div class="eyebrow">INET-SPEED-OLD-TIZEN</div><h2 id="modal-title"></h2><p id="modal-text"></p><div id="modal-actions"></div></div></div>
+</div>
+<script src="js/targets.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
