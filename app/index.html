@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=1920">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' http: https:; connect-src https://speed.cloudflare.com https://speed.edgecompute.app https://spd-rudp.hostkey.ru; object-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' file:; style-src 'self' 'unsafe-inline'; img-src 'self' http: https:; connect-src https://speed.cloudflare.com https://speed.edgecompute.app https://spd-rudp.hostkey.ru; object-src external-module:">
     <title>inet-speed-old-tizen</title>
     <link rel="stylesheet" href="css/app.css">
 </head>
@@ -16,9 +16,10 @@
         <button class="nav" data-page="sites"><span class="nav-symbol">◎</span> <span data-i18n="navSites">Sites</span></button>
         <button class="nav" data-page="speed"><span class="nav-symbol">↗</span> <span data-i18n="navSpeed">Speed</span></button>
         <div class="nav-divider"></div>
+        <button class="nav" data-page="information"><span class="nav-symbol">ⓘ</span> <span data-i18n="navInformation">Information</span></button>
         <button class="nav" data-page="settings"><span class="nav-symbol">≡</span> <span data-i18n="navSettings">Settings</span></button>
         <button class="nav" data-page="help"><span class="nav-symbol">?</span> <span data-i18n="navHelp">Help</span></button>
-        <div class="sidebar-bottom"><span class="status-dot"></span><span id="network-state">Ready to test</span><div>Tizen 2.4+ <span>v1.0.0</span></div></div>
+        <div class="sidebar-bottom"><span class="status-dot"></span><span id="network-state">Ready to test</span><div>Tizen 2.4+ <span>v1.0.1</span></div></div>
     </aside>
     <main>
         <header><div><div class="eyebrow" id="page-eyebrow">YOUR CONNECTION</div><h1 id="page-title">Internet on the big screen</h1></div><div class="header-note" id="header-note"><div data-i18n="headerNote">Test from your TV</div><span data-i18n="headerStorage">No files saved</span></div></header>
@@ -57,6 +58,44 @@
             <div class="panel chart-panel"><div class="section-heading"><h2 data-i18n="chartTitle">Speed during the test</h2><span id="chart-caption">Waiting for a test</span></div><canvas id="speed-chart" width="1360" height="245"></canvas><div class="chart-axis"><span data-i18n="chartStart">Start</span><span data-i18n="chartTime">Time →</span></div></div>
             <div class="panel explanation" data-i18n="speedExplanation">The result reflects the selected CDN and your TV connection. It does not measure video speed on YouTube or Twitch. No files are saved to disk.</div>
         </section>
+        <section id="page-information" class="page hidden">
+            <div class="toolbar"><p id="info-status" class="toolbar-description" role="status"></p><button class="primary small" id="info-refresh" data-i18n="infoRefresh">Refresh</button></div>
+            <div class="info-columns">
+                <div class="panel info-panel"><h2 data-i18n="infoTv">TV</h2>
+                    <dl class="info-list">
+                        <dt data-i18n="infoModel">Model</dt><dd id="info-model"></dd>
+                        <dt data-i18n="infoOs">Operating system</dt><dd id="info-os"></dd>
+                        <dt data-i18n="infoFirmware">Firmware</dt><dd id="info-firmware"></dd>
+                        <dt data-i18n="infoDisplay">Display resolution</dt><dd id="info-display"></dd>
+                        <dt data-i18n="infoLanguage">System language</dt><dd id="info-language"></dd>
+                        <dt data-i18n="infoCpu">CPU load · snapshot</dt><dd id="info-cpu"></dd>
+                        <dt data-i18n="infoApp">App version</dt><dd>1.0.1</dd>
+                    </dl>
+                </div>
+                <div class="panel info-panel"><h2 data-i18n="infoNetwork">Network</h2>
+                    <dl class="info-list">
+                        <dt data-i18n="infoConnection">Connection</dt><dd id="info-connection"></dd>
+                        <dt data-i18n="infoSsid">Wi-Fi network</dt><dd id="info-ssid"></dd>
+                        <dt data-i18n="infoSignal">Wi-Fi signal</dt><dd id="info-signal"></dd>
+                        <dt data-i18n="infoSecurity">Wi-Fi security</dt><dd id="info-security"></dd>
+                        <dt data-i18n="infoIp">Local IP</dt><dd id="info-ip"></dd>
+                        <dt data-i18n="infoMask">Subnet mask</dt><dd id="info-mask"></dd>
+                        <dt data-i18n="infoGateway">Gateway</dt><dd id="info-gateway"></dd>
+                        <dt>DNS</dt><dd id="info-dns"></dd>
+                    </dl>
+                </div>
+                <div class="panel info-panel"><h2 data-i18n="infoMemoryStorage">Memory & storage</h2>
+                    <h3 data-i18n="infoRam">System RAM</h3>
+                    <div class="info-meter"><div id="info-ram-fill"></div></div>
+                    <dl class="info-capacity"><dt data-i18n="infoTotal">Total</dt><dd id="info-ram-total"></dd><dt data-i18n="infoUsed">Used</dt><dd id="info-ram-used"></dd><dt data-i18n="infoFree">Free</dt><dd id="info-ram-free"></dd></dl>
+                    <h3 data-i18n="infoStorage">User storage</h3>
+                    <button class="chip" id="info-storage-device"></button>
+                    <div class="info-meter"><div id="info-disk-fill"></div></div>
+                    <dl class="info-capacity"><dt data-i18n="infoTotal">Total</dt><dd id="info-disk-total"></dd><dt data-i18n="infoUsed">Used</dt><dd id="info-disk-used"></dd><dt data-i18n="infoFree">Free</dt><dd id="info-disk-free"></dd></dl>
+                </div>
+            </div>
+            <p class="info-note" data-i18n="infoNote">RAM covers the whole system. Storage excludes system-reserved space. Wi-Fi standard and frequency are not exposed by the Tizen 2.4 APIs. Details stay on this screen and are not saved.</p>
+        </section>
         <section id="page-settings" class="page hidden">
             <p class="page-intro" data-i18n="settingsIntro">Preferences are saved on your TV. Tests start manually.</p>
             <div class="panel settings-list">
@@ -79,6 +118,8 @@
 <script src="js/targets.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/engine.js"></script>
+<script src="$WEBAPIS/webapis/webapis.min.js"></script>
+<script src="js/information.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

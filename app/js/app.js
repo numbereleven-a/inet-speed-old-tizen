@@ -27,6 +27,7 @@
         sites: ['sitesEyebrow', 'sitesTitle'],
         manual: ['sitesEyebrow', 'manualTitle'],
         speed: ['speedEyebrow', 'speedTitle'],
+        information: ['infoEyebrow', 'infoTitle'],
         settings: ['settingsEyebrow', 'settingsTitle'],
         help: ['helpEyebrow', 'helpTitle']
     };
@@ -139,10 +140,13 @@
         if (lastServer && speedResults[lastServer.id]) { renderCaptions(lastServer, speedResults[lastServer.id]); }
         else { setText('gauge-caption', t('waiting')); setText('chart-caption', t('waiting')); }
         summary();
+        window.NetInformation.render();
     }
 
     function showPage(name, focusContent) {
         if (modalOpen) { closeModal(); }
+        var previous = page;
+        if (previous === 'information' && name !== previous) { window.NetInformation.cancel(); }
         page = name;
         Object.keys(titles).forEach(function (key) { hidden('page-' + key, key !== name); });
         var nav = document.querySelectorAll('.nav');
@@ -150,6 +154,7 @@
         setText('page-eyebrow', t(titles[name][0]));
         setText('page-title', t(titles[name][1]));
         if (name === 'speed') { drawChart(); }
+        if (name === 'information' && previous !== name) { window.NetInformation.refresh(); }
         if (focusContent) {
             var first = el('page-' + name).querySelector('button:not([disabled])');
             if (first) { first.focus(); }
@@ -589,6 +594,7 @@
         el('screen').style.top = ((window.innerHeight - 1080 * factor) / 2) + 'px';
     }
 
+    window.NetInformation.init(t);
     readSettings(); makeSites(); makeServers(); applyLanguage(); drawGauge(0); drawChart(); scale();
     Array.prototype.forEach.call(document.querySelectorAll('.nav'), function (button) { button.onclick = function () { showPage(button.getAttribute('data-page'), false); }; });
     el('start-all').onclick = function () { start(sites.slice(), servers.slice()); };
@@ -616,8 +622,8 @@
     window.addEventListener('resize', scale);
     window.addEventListener('offline', function () { updateNetwork(); stop(); });
     window.addEventListener('online', updateNetwork);
-    window.addEventListener('beforeunload', stop);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) { stop(); } });
+    window.addEventListener('beforeunload', function () { stop(); window.NetInformation.cancel(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) { stop(); window.NetInformation.cancel(); } });
     document.addEventListener('keydown', function (event) {
         var code = event.keyCode;
         // Let the Samsung IME edit text, including arrows and Backspace.

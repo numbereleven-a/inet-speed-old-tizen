@@ -358,6 +358,65 @@ const assert = require('node:assert/strict');
     assert.match(await reviewPage.locator('#summary-speed').textContent(), /^50/);
     assert.equal(await reviewPage.locator('#gauge-caption').textContent(), 'Cloudflare');
     assert.deepEqual(errors, []);
+    await resetReviewPage();
+    await click('[data-page="information"]');
+    assert.equal(await reviewPage.locator('#info-model').textContent(), 'Unavailable');
+    assert.equal(await reviewPage.locator('#info-ram-total').textContent(), 'Unavailable');
+    await reviewPage.keyboard.press('ArrowRight');
+    assert.equal(await reviewPage.evaluate(() => document.activeElement.id), 'info-refresh');
+    await reviewPage.evaluate(() => {
+      window.infoCallbacks = [];
+      window.infoMode = 'wifi';
+      window.webapis = { productinfo: { getModel: () => 'Example TV', getFirmware: () => 'TEST-1.0' } };
+      window.tizen = { systeminfo: {
+        getCapability: () => '2.4.0', getTotalMemory: () => 1073741824, getAvailableMemory: () => 268435456,
+        getPropertyValue: (name, success, failure) => {
+          if (name === 'CPU') { window.infoCallbacks.push(success); return; }
+          if (name === 'LOCALE') { failure({ name: 'NotSupportedError' }); return; }
+          const properties = {
+            DISPLAY: { resolutionWidth: 1920, resolutionHeight: 1080 },
+            STORAGE: { units: [{ type: 'INTERNAL', capacity: 4294967296, availableCapacity: 1073741824 }, { type: 'USB_DEVICE', capacity: 8589934592, availableCapacity: 4294967296 }] },
+            NETWORK: { networkType: window.infoMode === 'wifi' ? 'WIFI' : 'ETHERNET' },
+            WIFI_NETWORK: { ssid: '<Example network>', signalStrength: 0.8, securityMode: 'WPA2_PSK', ipAddress: '192.0.2.10', subnetMask: '255.255.255.0', gateway: '192.0.2.1', dns: '192.0.2.53' },
+            ETHERNET_NETWORK: { ipAddress: '192.0.2.20', subnetMask: '255.255.255.0', gateway: '192.0.2.1', dns: '192.0.2.53' }
+          };
+          success(properties[name]);
+        }
+      } };
+    });
+    await click('#info-refresh');
+    assert.equal(await reviewPage.locator('#info-model').textContent(), 'Example TV');
+    assert.equal(await reviewPage.locator('#info-ssid').textContent(), '<Example network>');
+    assert.equal(await reviewPage.locator('#info-ssid *').count(), 0);
+    assert.equal(await reviewPage.locator('#info-ram-used').textContent(), '768 MiB');
+    assert.equal(await reviewPage.locator('#info-disk-free').textContent(), '1.00 GiB');
+    await click('#info-storage-device');
+    assert.equal(await reviewPage.locator('#info-disk-free').textContent(), '4.00 GiB');
+    await reviewPage.clock.runFor(3001);
+    assert.equal(await reviewPage.locator('#info-cpu').textContent(), 'Unavailable');
+    assert.equal(await reviewPage.locator('#info-language').textContent(), 'Unavailable');
+    await reviewPage.screenshot({ path: path.join(preview, 'information.png') });
+    await reviewPage.evaluate(() => { window.infoCallbacks.shift()({ load: 0.99 }); window.infoMode = 'ethernet'; });
+    assert.equal(await reviewPage.locator('#info-cpu').textContent(), 'Unavailable', 'Late native callbacks must not overwrite a finished snapshot');
+    await click('#info-refresh');
+    await reviewPage.evaluate(() => window.infoCallbacks.shift()({ load: 0.25 }));
+    assert.equal(await reviewPage.locator('#info-cpu').textContent(), '25%');
+    assert.equal(await reviewPage.locator('#info-ssid').textContent(), 'Not applicable');
+    assert.equal(await reviewPage.locator('#info-ip').textContent(), '192.0.2.20');
+    await click('#info-refresh');
+    await click('[data-page="settings"]');
+    await reviewPage.evaluate(() => window.infoCallbacks.shift()({ load: 0.99 }));
+    assert.equal(await reviewPage.locator('#info-cpu').textContent(), 'Unavailable', 'Leaving Information must cancel the read');
+    await click('#setting-language');
+    await click('[data-page="information"]');
+    await reviewPage.evaluate(() => window.infoCallbacks.shift()({ load: 0.1 }));
+    assert.equal(await reviewPage.locator('#info-ssid').textContent(), 'Не используется');
+    assert.equal(await reviewPage.locator('#info-refresh').textContent(), 'Обновить');
+    await reviewPage.screenshot({ path: path.join(preview, 'information-ru.png') });
+    const infoBounds = await reviewPage.locator('.info-note').evaluate(node => ({ bottom: node.getBoundingClientRect().bottom, footer: document.querySelector('footer').getBoundingClientRect().top }));
+    assert.ok(infoBounds.bottom < infoBounds.footer);
+    assert.equal(await reviewPage.evaluate(() => (localStorage.getItem('netscope-settings') || '').includes('192.0.2.20')), false);
+    assert.deepEqual(errors, []);
     await reviewPage.close();
     console.log('Checked localization, remote navigation, active layout, cooldown clock/expiry, preserved results, modal focus, probe counts, summaries, short-run captions and interval chart with synthetic data.');
   } finally { await browser.close(); }

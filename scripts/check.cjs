@@ -52,6 +52,7 @@ function checkStringCalls(node) {
 }
 checkStringCalls(acorn.parse(fs.readFileSync(path.join(app, 'js', 'app.js'), 'utf8'), { ecmaVersion: 5 }));
 for (const match of html.matchAll(/(?:src|href)="([^"#:]+)"/g)) {
+  if (match[1] === '$WEBAPIS/webapis/webapis.min.js') continue;
   if (!fs.existsSync(path.join(app, match[1]))) throw new Error('Missing local resource: ' + match[1]);
 }
 const manifest = fs.readFileSync(path.join(app, 'config.xml'), 'utf8');
@@ -79,5 +80,8 @@ for (const server of targets.servers) {
   if (!keys.includes(server.note)) throw new Error('Missing server translation: ' + server.id);
 }
 const png = fs.readFileSync(path.join(app, 'icon.png'));
-if (png.readUInt32BE(16) !== 512 || png.readUInt32BE(20) !== 512) throw new Error('Wrong launcher icon dimensions');
+if (png.readUInt32BE(16) !== 512 || png.readUInt32BE(20) !== 512) throw new Error('Wrong in-app icon dimensions');
+const launcherPath = /<icon\s+src="([^"]+)"\s*\/>/.exec(manifest)[1];
+const launcher = fs.readFileSync(path.join(app, launcherPath));
+if (launcher.readUInt32BE(16) !== 117 || launcher.readUInt32BE(20) !== 117) throw new Error('Wrong TV launcher icon dimensions');
 console.log('Checked ES5 syntax, legacy CSS, resources, translations, network access, versions, icon and private-data patterns.');

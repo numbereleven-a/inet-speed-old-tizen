@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://example.org/inet-speed-old-tizen" version="1.0.0" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://example.org/inet-speed-old-tizen-launcher" version="1.0.1" viewmodes="maximized">
   <access origin="*" />
-  <tizen:application id="NetScope01.TV" package="NetScope01" required_version="2.4" />
+  <tizen:application id="InetSpd001.TV" package="InetSpd001" required_version="2.4" />
   <content src="index.html" />
-  <icon src="icon.png" />
+  <icon src="icon-launcher.png" />
   <name>inet-speed-old-tizen</name>
   <tizen:profile name="tv-samsung" />
   <tizen:privilege name="http://tizen.org/privilege/internet" />
+  <tizen:privilege name="http://developer.samsung.com/privilege/productinfo" />
   <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable" />
 </widget>
