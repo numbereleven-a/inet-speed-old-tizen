@@ -223,6 +223,11 @@ const assert = require('node:assert/strict');
     assert.equal(await reviewPage.evaluate(() => window.reviewJobs[0].url), 'http://another.example/favicon.ico');
     await reviewPage.keyboard.press('Escape');
     assert.equal(await reviewPage.locator('#state-manual').textContent(), 'Stopped');
+    await reviewPage.locator('#manual-address').fill('example.com');
+    await click('#start-manual');
+    assert.equal(await reviewPage.evaluate(() => window.reviewJobs.length), 0, 'Returning to a manual host must respect its cooldown');
+    assert.match(await reviewPage.locator('#state-manual').textContent(), /Response timed out.*Retry in/);
+
     for (const address of ['', 'javascript:alert(1)', 'https://name:password@example.com', 'not a domain']) {
       await reviewPage.locator('#manual-address').fill(address);
       await click('#start-manual');

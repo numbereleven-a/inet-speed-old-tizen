@@ -291,7 +291,7 @@
         }
         var url = parsed.protocol + '//' + parsed.host + '/favicon.ico';
         if (!manualTarget || manualTarget.url !== url) {
-            if (manualTarget) { delete siteResults[manualTarget.id]; }
+            if (manualTarget && !waitLeft(manualTarget.id)) { delete siteResults[manualTarget.id]; }
             manualTarget = { id: 'manual:' + url, name: parsed.host, host: parsed.host, url: url, manual: true };
         }
         setText('manual-error', '');

@@ -1,6 +1,6 @@
 {
   "name": "inet-speed-old-tizen",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Internet diagnostics for Samsung Tizen TVs",
   "license": "MIT",

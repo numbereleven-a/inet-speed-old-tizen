@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://example.org/inet-speed-old-tizen-launcher" version="1.0.1" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://example.org/inet-speed-old-tizen-launcher" version="1.0.2" viewmodes="maximized">
   <access origin="*" />
   <tizen:application id="InetSpd001.TV" package="InetSpd001" required_version="2.4" />
   <content src="index.html" />
