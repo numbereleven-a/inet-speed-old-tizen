@@ -148,3 +148,31 @@ footer b { color: #d4dff1; margin-right: 8px; }
 .modal-box h2 { font-size: 37px; margin: 20px 0; }
 .modal-box p { color: #b3c6e2; font-size: 22px; }
 .modal-box button { display: block; width: 100%; background: #31486d; border-radius: 12px; margin-top: 15px; padding: 18px 20px; font-size: 23px; text-align: left; }
+
+/* DNS diagnostics: fixed two-column layout for the TV remote. */
+.sidebar .brand { margin-bottom: 40px; }
+.nav { padding-top: 14px; padding-bottom: 14px; }
+.nav-divider { margin-top: 20px; margin-bottom: 20px; }
+.dns-best { padding: 13px 20px; margin-bottom: 16px; font-size: 22px; color: #77d9bd; }
+.dns-list { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-flex-wrap: wrap; flex-wrap: wrap; -webkit-align-content: space-between; align-content: space-between; height: 420px; }
+.dns-provider { width: 49%; height: 76px; margin-bottom: 8px; padding: 8px 16px; border-radius: 12px; background: #151e31; text-align: left; }
+.dns-provider strong { font-size: 22px; }
+.dns-provider small { font-size: 13px; color: #91a6c7; margin-left: 15px; }
+.dns-result { display: block; margin-top: 5px; font-size: 16px; color: #b8ccee; }
+.dns-custom { padding: 12px 18px; }
+.dns-custom label { font-size: 19px; margin-right: 20px; }
+#dns-address { width: 65%; font: 20px Arial, sans-serif; color: #f1f4fb; background: #0e1626; border: 2px solid #405877; border-radius: 8px; padding: 9px; }
+#dns-address:focus { outline: 3px solid #8eb9ff; }
+.dns-custom-actions { margin-top: 8px; }
+#dns-custom-result { display: inline-block; max-width: 900px; margin-left: 15px; font-size: 16px; vertical-align: middle; word-wrap: break-word; }
+.dns-note { font-size: 16px; line-height: 1.4; color: #96abc9; margin-top: 12px; }
+
+.dns-pager { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; margin-bottom: 12px; height: 44px; }
+.dns-pager .chip { font-size: 17px; padding: 7px 15px; }
+#dns-page { font-size: 17px; color: #a9bad5; margin: 0 14px; }
+#page-dns .toolbar-description { max-width: 560px; font-size: 19px; }
+#page-dns .dns-list { height: 370px; }
+#page-dns .dns-provider { height: 66px; }
+#page-dns .dns-provider strong { display: inline-block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 19px; vertical-align: middle; }
+#page-dns .dns-provider small { display: inline-block; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+#page-dns .dns-result { font-size: 15px; margin-top: 3px; }

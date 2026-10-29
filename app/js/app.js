@@ -27,6 +27,7 @@
         sites: ['sitesEyebrow', 'sitesTitle'],
         manual: ['sitesEyebrow', 'manualTitle'],
         speed: ['speedEyebrow', 'speedTitle'],
+        dns: ['dnsEyebrow', 'dnsTitle'],
         information: ['infoEyebrow', 'infoTitle'],
         settings: ['settingsEyebrow', 'settingsTitle'],
         help: ['helpEyebrow', 'helpTitle']
@@ -141,11 +142,13 @@
         else { setText('gauge-caption', t('waiting')); setText('chart-caption', t('waiting')); }
         summary();
         window.NetInformation.render();
+        window.NetDNS.render();
     }
 
     function showPage(name, focusContent) {
         if (modalOpen) { closeModal(); }
         var previous = page;
+        if (previous === 'dns' && name !== previous) { window.NetDNS.stop(); }
         if (previous === 'information' && name !== previous) { window.NetInformation.cancel(); }
         page = name;
         Object.keys(titles).forEach(function (key) { hidden('page-' + key, key !== name); });
@@ -411,6 +414,7 @@
 
     function start(chosenSites, chosenServers) {
         if (run) { return; }
+        window.NetDNS.stop();
         var jobs = chosenSites.map(function (target) { return { kind: 'site', target: target }; }).concat(chosenServers.map(function (target) { return { kind: 'speed', target: target }; }));
         if (!jobs.length) { showModal(t('chooseSitesTitle'), t('chooseSitesText'), [{ label: t('gotIt'), action: closeModal }]); return; }
         closeModal();
@@ -549,13 +553,14 @@
     }
 
     function exit() {
-        stop();
+        stop(); window.NetDNS.stop();
         if (window.tizen && window.tizen.application) { window.tizen.application.getCurrentApplication().exit(); }
         else { closeModal(); footer('closeBrowser'); }
     }
 
     function back() {
         if (modalOpen) { closeModal(); }
+        else if (window.NetDNS.running()) { window.NetDNS.stop(); }
         else if (run) { stop(); }
         else if (page === 'manual') { showPage('sites', true); }
         else if (page !== 'overview') { showPage('overview', true); }
@@ -595,6 +600,7 @@
     }
 
     window.NetInformation.init(t);
+    window.NetDNS.init(t, function () { return settings.timeout * 1000; }, stop);
     readSettings(); makeSites(); makeServers(); applyLanguage(); drawGauge(0); drawChart(); scale();
     Array.prototype.forEach.call(document.querySelectorAll('.nav'), function (button) { button.onclick = function () { showPage(button.getAttribute('data-page'), false); }; });
     el('start-all').onclick = function () { start(sites.slice(), servers.slice()); };
@@ -620,13 +626,18 @@
         };
     });
     window.addEventListener('resize', scale);
-    window.addEventListener('offline', function () { updateNetwork(); stop(); });
+    window.addEventListener('offline', function () { updateNetwork(); stop(); window.NetDNS.stop(); });
     window.addEventListener('online', updateNetwork);
-    window.addEventListener('beforeunload', function () { stop(); window.NetInformation.cancel(); });
-    document.addEventListener('visibilitychange', function () { if (document.hidden) { stop(); window.NetInformation.cancel(); } });
+    window.addEventListener('beforeunload', function () { stop(); window.NetInformation.cancel(); window.NetDNS.stop(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) { stop(); window.NetInformation.cancel(); window.NetDNS.stop(); } });
     document.addEventListener('keydown', function (event) {
         var code = event.keyCode;
         // Let the Samsung IME edit text, including arrows and Backspace.
+        if (document.activeElement === el('dns-address') && !modalOpen) {
+            if (code === 65376 || code === 13) { el('dns-address').blur(); el('dns-custom-test').focus(); }
+            else if (code === 65385 || code === 10009 || code === 27) { el('dns-address').blur(); el('dns-edit').focus(); }
+            return;
+        }
         if (document.activeElement === el('manual-address') && !modalOpen) {
             if (code === 65376 || code === 13) { el('manual-address').blur(); el('start-manual').focus(); }
             else if (code === 65385 || code === 10009 || code === 27) { el('manual-address').blur(); el('manual-edit').focus(); }

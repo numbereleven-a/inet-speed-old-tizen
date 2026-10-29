@@ -1,11 +1,11 @@
 {
   "name": "inet-speed-old-tizen",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": true,
   "description": "Internet diagnostics for Samsung Tizen TVs",
   "license": "MIT",
   "scripts": {
-    "test": "node --test tests/engine.test.cjs",
+    "test": "node --test tests/engine.test.cjs tests/doh.test.cjs",
     "test:ui": "node tests/ui.smoke.cjs",
     "check": "node scripts/check.cjs",
     "package": "powershell -NoProfile -File scripts/package.ps1"

@@ -8,7 +8,7 @@ Push-Location $projectRoot
 try {
     & node scripts/check.cjs
     if ($LASTEXITCODE -ne 0) { throw 'Source checks failed.' }
-    & node --test tests/engine.test.cjs
+    & node --test tests/engine.test.cjs tests/doh.test.cjs
     if ($LASTEXITCODE -ne 0) { throw 'Engine tests failed.' }
     [xml]$manifest = [System.IO.File]::ReadAllText((Join-Path $projectRoot 'app/config.xml'))
     $version = $manifest.widget.version

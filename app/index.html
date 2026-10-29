@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=1920">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' file:; style-src 'self' 'unsafe-inline'; img-src 'self' http: https:; connect-src https://speed.cloudflare.com https://speed.edgecompute.app https://spd-rudp.hostkey.ru; object-src external-module:">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' file:; style-src 'self' 'unsafe-inline'; img-src 'self' http: https:; connect-src https: https://speed.cloudflare.com https://speed.edgecompute.app https://spd-rudp.hostkey.ru; object-src external-module:">
     <title>inet-speed-old-tizen</title>
     <link rel="stylesheet" href="css/app.css">
 </head>
@@ -15,11 +15,12 @@
         <button class="nav active" data-page="overview"><span class="nav-symbol">◉</span> <span data-i18n="navOverview">Overview</span></button>
         <button class="nav" data-page="sites"><span class="nav-symbol">◎</span> <span data-i18n="navSites">Sites</span></button>
         <button class="nav" data-page="speed"><span class="nav-symbol">↗</span> <span data-i18n="navSpeed">Speed</span></button>
+        <button class="nav" data-page="dns"><span class="nav-symbol">◈</span> <span data-i18n="dnsNav">DNS Speed Test</span></button>
         <div class="nav-divider"></div>
         <button class="nav" data-page="information"><span class="nav-symbol">ⓘ</span> <span data-i18n="navInformation">Information</span></button>
         <button class="nav" data-page="settings"><span class="nav-symbol">≡</span> <span data-i18n="navSettings">Settings</span></button>
         <button class="nav" data-page="help"><span class="nav-symbol">?</span> <span data-i18n="navHelp">Help</span></button>
-        <div class="sidebar-bottom"><span class="status-dot"></span><span id="network-state">Ready to test</span><div>Tizen 2.4+ <span>v1.0.2</span></div></div>
+        <div class="sidebar-bottom"><span class="status-dot"></span><span id="network-state">Ready to test</span><div>Tizen 2.4+ <span>v1.1.0</span></div></div>
     </aside>
     <main>
         <header><div><div class="eyebrow" id="page-eyebrow">YOUR CONNECTION</div><h1 id="page-title">Internet on the big screen</h1></div><div class="header-note" id="header-note"><div data-i18n="headerNote">Test from your TV</div><span data-i18n="headerStorage">No files saved</span></div></header>
@@ -58,6 +59,14 @@
             <div class="panel chart-panel"><div class="section-heading"><h2 data-i18n="chartTitle">Speed during the test</h2><span id="chart-caption">Waiting for a test</span></div><canvas id="speed-chart" width="1360" height="245"></canvas><div class="chart-axis"><span data-i18n="chartStart">Start</span><span data-i18n="chartTime">Time →</span></div></div>
             <div class="panel explanation" data-i18n="speedExplanation">The result reflects the selected CDN and your TV connection. It does not measure video speed on YouTube or Twitch. No files are saved to disk.</div>
         </section>
+        <section id="page-dns" class="page hidden">
+            <div class="toolbar"><p id="dns-status" class="toolbar-description" data-i18n="dnsReady">DoH · 3 queries per provider</p><div><button id="dns-all" class="primary small" data-i18n="dnsAll">Test</button> <button id="dns-extended" class="primary small" data-i18n="dnsExtended">Extended test</button> <button id="dns-stop" class="chip" data-i18n="stop">Stop</button></div></div>
+            <div id="dns-best" class="dns-best panel"></div>
+            <div class="dns-pager"><button id="dns-quick" class="chip" data-i18n="dnsQuick">Quick list</button><button id="dns-top" class="chip" data-i18n="dnsTop">Top 10</button><button id="dns-prev" class="chip">←</button><span id="dns-page"></span><button id="dns-next" class="chip">→</button></div>
+            <div id="dns-list" class="dns-list"></div>
+            <div class="panel dns-custom"><label for="dns-address" data-i18n="dnsCustom">Custom DoH endpoint (HTTPS)</label><input id="dns-address" type="text" maxlength="1024" placeholder="https://dns.example/dns-query" autocomplete="off" spellcheck="false"><div class="dns-custom-actions"><button id="dns-edit" class="text-button" data-i18n="manualEdit">Enter address</button><button id="dns-custom-test" class="primary small" data-i18n="dnsTest">Test DoH</button><span id="dns-custom-result" role="status"></span></div></div>
+            <p id="dns-note" class="dns-note" role="status" data-i18n="dnsNote"></p>
+        </section>
         <section id="page-information" class="page hidden">
             <div class="toolbar"><p id="info-status" class="toolbar-description" role="status"></p><button class="primary small" id="info-refresh" data-i18n="infoRefresh">Refresh</button></div>
             <div class="info-columns">
@@ -69,7 +78,7 @@
                         <dt data-i18n="infoDisplay">Display resolution</dt><dd id="info-display"></dd>
                         <dt data-i18n="infoLanguage">System language</dt><dd id="info-language"></dd>
                         <dt data-i18n="infoCpu">CPU load · snapshot</dt><dd id="info-cpu"></dd>
-                        <dt data-i18n="infoApp">App version</dt><dd>1.0.2</dd>
+                        <dt data-i18n="infoApp">App version</dt><dd>1.1.0</dd>
                     </dl>
                 </div>
                 <div class="panel info-panel"><h2 data-i18n="infoNetwork">Network</h2>
@@ -120,6 +129,9 @@
 <script src="js/engine.js"></script>
 <script src="$WEBAPIS/webapis/webapis.min.js"></script>
 <script src="js/information.js"></script>
+<script src="js/doh-engine.js"></script>
+<script src="js/dns-catalog.js"></script>
+<script src="js/dns.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
