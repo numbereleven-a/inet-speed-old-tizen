@@ -77,3 +77,5 @@ npm test
 ## Лицензия
 
 [MIT](LICENSE).
+
+[![Downloads](https://img.shields.io/github/downloads/numbereleven-a/inet-speed-old-tizen/total?label=Downloads)](https://github.com/numbereleven-a/inet-speed-old-tizen/releases)

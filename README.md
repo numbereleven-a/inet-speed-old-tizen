@@ -77,3 +77,5 @@ Enable Developer Mode, connect the TV to Tizen Studio, create a Samsung certific
 ## License
 
 [MIT](LICENSE).
+
+[![Downloads](https://img.shields.io/github/downloads/numbereleven-a/inet-speed-old-tizen/total?label=Downloads)](https://github.com/numbereleven-a/inet-speed-old-tizen/releases)
