@@ -13,8 +13,8 @@
         ['AliDNS', 'https://dns.alidns.com/dns-query']
     ].map(function (p) { return { name: p[0], url: p[1] }; });
     var detailTarget = null;
-    var view = 'quick', pageIndex = 0, top = [];
-    function visibleProviders() { return view === 'quick' ? providers : view === 'top' ? top : root.NetDNSExtended; }
+    var view = 'quick', pageIndex = 0, finalists = [];
+    function visibleProviders() { return view === 'quick' ? providers : view === 'top' ? ranked(finalists).slice(0, 10) : root.NetDNSExtended; }
     var t, getTimeout, beforeStart, current = null, timer = null, refreshTimer = null, active = null;
     var results = {}, cooldowns = {}, custom = null, count = 3;
     function el(id) { return document.getElementById('dns-' + id); }
@@ -23,6 +23,10 @@
     function stats(a) {
         var sorted = a.slice().sort(function (x, y) { return x - y; });
         return { median: sorted[Math.floor(sorted.length / 2)], min: sorted[0], max: sorted[sorted.length - 1] };
+    }
+    function ranked(list) {
+        return list.filter(function (p) { var r = results[p.url]; return r && r.reason === 'ok' && r.required === count && r.samples.length === count; })
+            .sort(function (a, b) { return stats(results[a.url].samples).median - stats(results[b.url].samples).median; });
     }
     function description(p) {
         var r = results[p.url], wait = left(p.url), text = t('notTested');
@@ -62,8 +66,7 @@
         el('all').disabled = el('custom-test').disabled = el('address').disabled = el('edit').disabled = !!current;
         el('custom-result').textContent = custom ? description(custom) : '';
         el('note').textContent = explanation(detailTarget);
-        var valid = (view === 'quick' ? providers.concat(custom ? [custom] : []) : top).filter(function (p) { var r = results[p.url]; return r && r.reason === 'ok' && r.samples.length === count && r.required !== 1; });
-        valid.sort(function (a, b) { return stats(results[a.url].samples).median - stats(results[b.url].samples).median; });
+        var valid = ranked(view === 'quick' ? providers.concat(custom ? [custom] : []) : finalists);
         el('best').textContent = valid.length ? t('dnsBest') + ': ' + valid[0].name + ' · ' + Math.round(stats(results[valid[0].url].samples).median) + ' ' + t('unitMs') : t(view === 'top' ? 'dnsEmptyTop' : 'dnsNoWinner');
     }
     function stop() {
@@ -80,7 +83,7 @@
     function run(list, extended) {
         if (current) { return; }
         beforeStart();
-        if (extended) { view = 'extended'; pageIndex = 0; top = []; }
+        if (extended) { view = 'extended'; pageIndex = 0; finalists = []; }
         if (!refreshTimer && Object.keys(cooldowns).length) { refreshTimer = setInterval(tick, 1000); }
         var job = { index: 0, control: null, phase: extended ? 'screen' : 'normal', candidates: [] };
         current = job;
@@ -94,9 +97,7 @@
                     timer = setTimeout(next, 0); return;
                 }
                 if (extended) {
-                    top = list.filter(function (p) { var r = results[p.url]; return r && r.reason === 'ok' && r.required === 3 && r.samples.length === 3; });
-                    top.sort(function (a, b) { return stats(results[a.url].samples).median - stats(results[b.url].samples).median; });
-                    top = top.slice(0, 10); view = 'top'; pageIndex = 0; detailTarget = null;
+                    finalists = list.slice(); view = 'top'; pageIndex = 0; detailTarget = null;
                 }
                 current = null; active = null; el('status').textContent = t(extended ? 'dnsExtendedDone' : 'done'); render(); el('stop').focus(); return;
             }

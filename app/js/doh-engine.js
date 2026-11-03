@@ -37,16 +37,28 @@
             var q = name(12), pos = q.end;
             if (q.value !== 'example.com' || word(pos) !== 1 || word(pos + 2) !== 1) { return 'dnsInvalid'; }
             pos += 4;
-            var answers = word(6), found = false;
+            var answers = word(6), addresses = Object.create(null), aliases = Object.create(null);
             for (var i = 0; i < answers; i += 1) {
-                pos = name(pos).end;
+                var owner = name(pos);
+                pos = owner.end;
                 var type = word(pos), cls = word(pos + 2), len = word(pos + 8);
                 pos += 10;
                 if (pos + len > b.length) { return 'dnsInvalid'; }
-                if (type === 1 && cls === 1 && len === 4 && b[pos] !== 0 && b[pos] < 224 && b[pos] !== 127) { found = true; }
+                if (type === 1 && cls === 1 && len === 4 && b[pos] !== 0 && b[pos] < 224 && b[pos] !== 127) { addresses[owner.value] = true; }
+                if (type === 5 && cls === 1) {
+                    var alias = name(pos);
+                    if (alias.end !== pos + len) { return 'dnsInvalid'; }
+                    aliases[owner.value] = alias.value;
+                }
                 pos += len;
             }
-            return found ? null : 'dnsNoAnswer';
+            var target = q.value;
+            for (var hops = 0; hops <= answers; hops += 1) {
+                if (addresses[target]) { return null; }
+                if (!aliases[target]) { return 'dnsNoAnswer'; }
+                target = aliases[target];
+            }
+            return 'dnsInvalid';
         } catch (error) { return 'dnsInvalid'; }
     }
     function probe(url, timeout, done) {
